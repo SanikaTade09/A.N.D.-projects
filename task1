@@ -1,0 +1,101 @@
+import random
+
+class Question:
+    def __init__(self, text, options, correct_option):
+        self.text = text
+        self.options = options
+        self.correct_option = correct_option
+
+    def is_correct(self, user_choice):
+        return user_choice == self.correct_option
+
+
+class Quiz:
+    def __init__(self, questions):
+        self.questions = questions
+        self.score = 0
+
+    def run_quiz(self):
+        for question in self.questions:
+            print(question.text)
+            for i, option in enumerate(question.options, start=1):
+                print(f"{i}. {option}")
+
+            user_choice = int(input("Enter the number of your choice: "))
+            
+            if 1 <= user_choice <= len(question.options):
+                if question.is_correct(user_choice):
+                    print("Correct! You earned a point.\n")
+                    self.score += 1
+                else:
+                    print(f"Wrong! The correct answer was {question.correct_option}.\n")
+            else:
+                print("Invalid choice. Please choose a valid option.\n")
+
+        print(f"You scored {self.score}/{len(self.questions)}")
+
+
+def choose_topic():
+    topics = ["General Knowledge", "Science", "History", "Programming"]
+    print("Choose a topic:")
+    for i, topic in enumerate(topics, start=1):
+        print(f"{i}. {topic}")
+    
+    topic_choice = int(input("Enter the number of your chosen topic: "))
+    return topics[topic_choice - 1]
+
+
+def choose_difficulty():
+    difficulties = ["Easy", "Medium", "Hard"]
+    print("Choose a difficulty level:")
+    for i, difficulty in enumerate(difficulties, start=1):
+        print(f"{i}. {difficulty}")
+    
+    difficulty_choice = int(input("Enter the number of your chosen difficulty: "))
+    return difficulties[difficulty_choice - 1]
+
+
+def generate_questions(topic, difficulty):
+    # You can extend this with more questions based on the chosen topic and difficulty
+    if topic == "General Knowledge" and difficulty == "Easy":
+        return [
+            Question("What is the capital of Italy?", ["Paris", "Berlin", "Madrid", "Rome"], 4),
+            Question("What is the largest ocean on Earth?", ["Atlantic", "Indian", "Southern", "Pacific"], 4),
+            # Add more questions...
+        ]
+    elif topic == "Science" and difficulty == "Easy":
+        return [
+            Question("What is the chemical symbol for water?", ["H2O", "CO2", "O2", "N2"], 1),
+            Question("Which planet is known as the Red Planet?", ["Earth", "Mars", "Jupiter", "Venus"], 2),
+            # Add more questions...
+        ]
+    elif topic == "History" and difficulty == "Easy":
+        return [
+            Question("In which year did Christopher Columbus reach the Americas?", ["1492", "1607", "1776", "1066"], 1),
+            Question("Who was the first President of the United States?", ["Thomas Jefferson", "John Adams", "George Washington", "Abraham Lincoln"], 3),
+            # Add more questions...
+        ]
+    elif topic == "Programming" and difficulty == "Easy":
+        return [
+            Question("What does HTML stand for?", ["Hypertext Markup Language", "High-Level Text Manipulation Language", "Hyperlink and Text Markup Language", "Home Tool Markup Language"], 1),
+            Question("Which programming language is known for its use in machine learning and data science?", ["Java", "Python", "C++", "Ruby"], 2),
+            # Add more questions...
+        ]
+    else:
+        print("Invalid topic or difficulty.")
+        return []
+
+
+def main():
+    selected_topic = choose_topic()
+    selected_difficulty = choose_difficulty()
+
+    questions = generate_questions(selected_topic, selected_difficulty)
+
+    if questions:
+        quiz = Quiz(questions)
+        quiz.run_quiz()
+
+
+if __name__ == "__main__":
+    main()

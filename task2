@@ -1,0 +1,87 @@
+from cryptography.fernet import Fernet
+import json
+import os
+
+class PasswordManager:
+    def __init__(self, master_password):
+        self.master_password = master_password
+        self.key = self.generate_key()
+        self.passwords = {}
+
+    def generate_key(self):
+        return Fernet.generate_key()
+
+    def encrypt_data(self, data):
+        cipher = Fernet(self.key)
+        encrypted_data = cipher.encrypt(data.encode())
+        return encrypted_data
+
+    def decrypt_data(self, encrypted_data):
+        cipher = Fernet(self.key)
+        decrypted_data = cipher.decrypt(encrypted_data).decode()
+        return decrypted_data
+
+    def save_password(self, category, website, username, password):
+        if category not in self.passwords:
+            self.passwords[category] = {}
+        self.passwords[category][website] = {
+            'username': self.encrypt_data(username),
+            'password': self.encrypt_data(password)
+        }
+        self._save_to_file()
+
+    def retrieve_password(self, category, website):
+        if category in self.passwords and website in self.passwords[category]:
+            credentials = self.passwords[category][website]
+            username = self.decrypt_data(credentials['username'])
+            password = self.decrypt_data(credentials['password'])
+            return username, password
+        else:
+            return None, None
+
+    def _save_to_file(self):
+        with open('passwords.json', 'w') as file:
+            json.dump(self.passwords, file)
+
+    def load_from_file(self):
+        if os.path.exists('passwords.json'):
+            with open('passwords.json', 'r') as file:
+                self.passwords = json.load(file)
+
+if __name__ == "__main__":
+    master_password = input("Enter your master password: ")
+    password_manager = PasswordManager(master_password)
+    
+    # Load existing passwords
+    password_manager.load_from_file()
+
+    while True:
+        print("\n1. Save Password\n2. Retrieve Password\n3. Exit")
+        choice = input("Enter your choice (1/2/3): ")
+
+        if choice == '1':
+            category = input("Enter the category: ")
+            website = input("Enter the website: ")
+            username = input("Enter the username: ")
+            password = input("Enter the password: ")
+            password_manager.save_password(category, website, username, password)
+            print("Password saved successfully!")
+
+        elif choice == '2':
+            category = input("Enter the category: ")
+            website = input("Enter the website: ")
+            username, password = password_manager.retrieve_password(category, website)
+            
+            if username and password:
+                print(f"\nUsername: {username}\nPassword: {password}")
+            else:
+                print("Password not found!")
+
+        elif choice == '3':
+            # Save changes and exit
+            password_manager._save_to_file()
+            print("Password manager closed. Changes saved.")
+            break
+
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
